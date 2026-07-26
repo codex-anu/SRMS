@@ -1,0 +1,99 @@
+{% extends 'records/index.html' %}
+
+{% block title %}Student Records - SRMS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 reveal">
+    <div>
+        <h1 class="fw-bold mb-1" style="letter-spacing:-0.03em">Student Records</h1>
+        <p class="text-muted mb-0" style="font-size:0.875rem">{{ students|length }} records found</p>
+    </div>
+    <a href="{% url 'records:add_student' %}" class="btn btn-primary-custom">
+        <i class="fa-solid fa-plus me-1"></i> Add Student
+    </a>
+</div>
+
+{% if students %}
+<div class="srms-card p-0 overflow-hidden reveal">
+    <div class="table-responsive">
+        <table class="table table-custom align-middle mb-0">
+            <thead>
+                <tr>
+                    <th style="width:12%">ID</th>
+                    <th style="width:30%">Student Name</th>
+                    <th style="width:14%">Total</th>
+                    <th style="width:14%">Percentage</th>
+                    <th style="width:10%">Grade</th>
+                    <th style="width:20%" class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                    <tr>
+                        <td><span class="text-muted" style="font-size:0.8125rem">{{ student.id }}</span></td>
+                        <td>
+                            <a href="{% url 'records:student_details' student.id %}" class="text-decoration-none fw-semibold" style="color:var(--text-main)">
+                                {{ student.name }}
+                            </a>
+                        </td>
+                        <td>{{ student.total }}</td>
+                        <td><span class="fw-medium">{{ student.percentage|floatformat:2 }}%</span></td>
+                        <td>
+                            <span class="badge-grade badge-grade-{% if student.grade == 'A+' %}a-plus{% elif student.grade == 'A' %}a{% elif student.grade == 'B' %}b{% elif student.grade == 'C' %}c{% elif student.grade == 'D' %}d{% else %}f{% endif %}">
+                                {{ student.grade }}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-1">
+                                <a href="{% url 'records:student_details' student.id %}" class="btn btn-sm btn-secondary-custom border-0 px-2" title="View" style="background:transparent">
+                                    <i class="fa-solid fa-eye" style="font-size:0.8rem"></i>
+                                </a>
+                                <a href="{% url 'records:update_student' student.id %}" class="btn btn-sm btn-secondary-custom border-0 px-2" title="Edit" style="background:transparent">
+                                    <i class="fa-solid fa-pen" style="font-size:0.8rem"></i>
+                                </a>
+                                <button class="btn btn-sm btn-secondary-custom border-0 px-2" data-bs-toggle="modal" data-bs-target="#deleteModal{{ student.id }}" title="Delete" style="background:transparent;color:var(--danger)">
+                                    <i class="fa-solid fa-trash" style="font-size:0.8rem"></i>
+                                </button>
+                            </div>
+
+                            <!-- Delete Modal -->
+                            <div class="modal fade text-start" id="deleteModal{{ student.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ student.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content border-0 shadow-lg" style="border-radius:var(--radius-lg)">
+                                        <div class="modal-header border-bottom py-3 px-4">
+                                            <h5 class="modal-title fw-bold" id="deleteModalLabel{{ student.id }}">Confirm Deletion</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body p-4">
+                                            <p class="text-muted mb-1">You are about to permanently delete:</p>
+                                            <h5 class="fw-bold mb-3">{{ student.name }} ({{ student.id }})</h5>
+                                            <div class="d-flex align-items-center gap-2 p-3" style="background:var(--danger-light);border-radius:var(--radius-sm)">
+                                                <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                                                <small class="fw-semibold text-danger">This action cannot be undone.</small>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-top p-3">
+                                            <button type="button" class="btn btn-secondary-custom" data-bs-dismiss="modal">Cancel</button>
+                                            <a href="{% url 'records:delete_student' student.id %}" class="btn px-3 fw-bold text-white" style="background:var(--danger);border:none;border-radius:var(--radius-sm)">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="srms-card text-center py-5 reveal">
+    <div class="mb-3"><i class="fa-solid fa-users-slash fs-1" style="color:var(--text-muted);opacity:0.4"></i></div>
+    <h4 class="fw-bold mb-2">No Student Records</h4>
+    <p class="text-muted col-md-6 mx-auto mb-4" style="font-size:0.875rem">Add students to create records and view analytics.</p>
+    <a href="{% url 'records:add_student' %}" class="btn btn-primary-custom">
+        <i class="fa-solid fa-user-plus me-1"></i> Add First Student
+    </a>
+</div>
+{% endif %}
+{% endblock %}

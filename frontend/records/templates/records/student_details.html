@@ -1,0 +1,122 @@
+{% extends 'records/index.html' %}
+
+{% block title %}Report Card - {{ student.name }} - SRMS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb" style="font-size:0.8125rem">
+                <li class="breadcrumb-item"><a href="{% url 'records:dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'records:list_students' %}">Records</a></li>
+                <li class="breadcrumb-item active text-muted" aria-current="page">{{ student.id }}</li>
+            </ol>
+        </nav>
+
+        <!-- Header -->
+        <div class="d-flex align-items-center gap-3 mb-4 reveal">
+            <a href="{% url 'records:list_students' %}" class="btn btn-sm btn-secondary-custom" title="Back">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1 class="fw-bold mb-0" style="letter-spacing:-0.03em">Student Profile</h1>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="srms-card mb-4 reveal">
+            <!-- Profile Header -->
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle" style="width:52px;height:52px;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;font-size:1.25rem;font-weight:700">
+                        {{ student.name|first }}
+                    </div>
+                    <div>
+                        <h2 class="fw-bold mb-0" style="font-size:1.375rem;letter-spacing:-0.02em">{{ student.name }}</h2>
+                        <span class="text-muted" style="font-size:0.8125rem">Academic Report Card</span>
+                    </div>
+                </div>
+                <span class="px-3 py-1 fw-semibold" style="font-size:0.8125rem;background:var(--primary-light);color:var(--primary);border-radius:var(--radius-full)">{{ student.id }}</span>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="row g-3 mb-4 text-center">
+                <div class="col-4">
+                    <div class="p-3" style="background:var(--border-light);border-radius:var(--radius-md)">
+                        <div class="text-muted small fw-semibold mb-1" style="font-size:0.6875rem;text-transform:uppercase;letter-spacing:0.06em">Total Marks</div>
+                        <h4 class="fw-bold mb-0" style="letter-spacing:-0.02em">{{ student.total }}</h4>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="p-3" style="background:var(--border-light);border-radius:var(--radius-md)">
+                        <div class="text-muted small fw-semibold mb-1" style="font-size:0.6875rem;text-transform:uppercase;letter-spacing:0.06em">Percentage</div>
+                        <h4 class="fw-bold mb-0" style="letter-spacing:-0.02em">{{ student.percentage|floatformat:2 }}%</h4>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="p-3" style="background:var(--border-light);border-radius:var(--radius-md)">
+                        <div class="text-muted small fw-semibold mb-1" style="font-size:0.6875rem;text-transform:uppercase;letter-spacing:0.06em">Final Grade</div>
+                        <h4 class="fw-bold mb-0" style="letter-spacing:-0.02em">{{ student.grade }}</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Scores -->
+            <h6 class="fw-bold mb-3" style="color:var(--text-secondary);font-size:0.875rem"><i class="fa-solid fa-square-poll-horizontal me-2"></i>Subject Breakdown</h6>
+            <div class="table-responsive mb-4" style="border:1px solid var(--border-color);border-radius:var(--radius-md);overflow:hidden">
+                <table class="table table-custom mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th class="py-3 px-4">Subject</th>
+                            <th class="py-3 px-4 text-end">Marks</th>
+                            <th class="py-3 px-4 text-end">Max</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mark in student.marks %}
+                            <tr>
+                                <td class="py-3 px-4 fw-medium" style="color:var(--text-secondary)">Subject {{ forloop.counter }}</td>
+                                <td class="py-3 px-4 text-end fw-bold">{{ mark }}</td>
+                                <td class="py-3 px-4 text-end text-muted">100.0</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-end gap-2 pt-3" style="border-top:1px solid var(--border-color)">
+                <a href="{% url 'records:update_student' student.id %}" class="btn btn-secondary-custom">
+                    <i class="fa-solid fa-pen me-1"></i> Edit
+                </a>
+                <button class="btn px-3 text-white" style="background:var(--danger);border:none;border-radius:var(--radius-sm)" data-bs-toggle="modal" data-bs-target="#deleteModal{{ student.id }}">
+                    <i class="fa-solid fa-trash me-1"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal{{ student.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ student.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:var(--radius-lg)">
+            <div class="modal-header border-bottom py-3 px-4">
+                <h5 class="modal-title fw-bold" id="deleteModalLabel{{ student.id }}">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-muted mb-1">You are about to permanently delete:</p>
+                <h5 class="fw-bold mb-3">{{ student.name }} ({{ student.id }})</h5>
+                <div class="d-flex align-items-center gap-2 p-3" style="background:var(--danger-light);border-radius:var(--radius-sm)">
+                    <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                    <small class="fw-semibold text-danger">This action cannot be undone.</small>
+                </div>
+            </div>
+            <div class="modal-footer border-top p-3">
+                <button type="button" class="btn btn-secondary-custom" data-bs-dismiss="modal">Cancel</button>
+                <a href="{% url 'records:delete_student' student.id %}" class="btn px-3 fw-bold text-white" style="background:var(--danger);border:none;border-radius:var(--radius-sm)">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'records/index.html' %}
+
+{% block title %}Search Student - SRMS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mb-4">
+    <div class="col-lg-8">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb" style="font-size:0.8125rem">
+                <li class="breadcrumb-item"><a href="{% url 'records:dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active text-muted" aria-current="page">Search</li>
+            </ol>
+        </nav>
+        <h1 class="fw-bold mb-1 reveal" style="letter-spacing:-0.03em">Search Students</h1>
+        <p class="text-muted reveal" style="font-size:0.875rem">Search by student ID (e.g. S001) or name.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center g-4">
+    <div class="col-lg-8">
+        <!-- Search Box -->
+        <div class="srms-card mb-4 reveal">
+            <form method="GET" action="{% url 'records:search_student' %}" class="d-flex gap-2">
+                <div class="input-group">
+                    <span class="input-group-text border-end-0" style="background:var(--card-bg);border-color:var(--border-color);border-radius:var(--radius-sm) 0 0 var(--radius-sm)">
+                        <i class="fa-solid fa-magnifying-glass text-muted" style="font-size:0.875rem"></i>
+                    </span>
+                    <input type="text" class="form-control form-control-custom border-start-0 ps-0" style="border-radius:0 var(--radius-sm) var(--radius-sm) 0" placeholder="Enter Student ID or Name..." name="query" value="{{ query }}" required aria-label="Search">
+                </div>
+                <button type="submit" class="btn btn-primary-custom px-4 flex-shrink-0">Search</button>
+            </form>
+        </div>
+
+        <!-- Results -->
+        {% if query %}
+            <h6 class="fw-bold mb-3 reveal" style="color:var(--text-secondary);font-size:0.875rem">Results for "{{ query }}"</h6>
+            <div class="srms-card p-0 overflow-hidden reveal">
+                {% if results %}
+                    <div class="table-responsive">
+                        <table class="table table-custom align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width:18%">ID</th>
+                                    <th style="width:35%">Name</th>
+                                    <th style="width:17%">Percentage</th>
+                                    <th style="width:12%">Grade</th>
+                                    <th style="width:18%" class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in results %}
+                                    <tr>
+                                        <td><span class="text-muted" style="font-size:0.8125rem">{{ student.id }}</span></td>
+                                        <td>
+                                            <a href="{% url 'records:student_details' student.id %}" class="text-decoration-none fw-semibold" style="color:var(--text-main)">
+                                                {{ student.name }}
+                                            </a>
+                                        </td>
+                                        <td><span class="fw-medium">{{ student.percentage|floatformat:2 }}%</span></td>
+                                        <td>
+                                            <span class="badge-grade badge-grade-{% if student.grade == 'A+' %}a-plus{% elif student.grade == 'A' %}a{% elif student.grade == 'B' %}b{% elif student.grade == 'C' %}c{% elif student.grade == 'D' %}d{% else %}f{% endif %}">
+                                                {{ student.grade }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <a href="{% url 'records:student_details' student.id %}" class="btn btn-sm btn-primary-custom px-3">
+                                                <i class="fa-solid fa-eye me-1"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <div class="mb-3"><i class="fa-solid fa-user-slash fs-1" style="color:var(--text-muted);opacity:0.4"></i></div>
+                        <h5 class="fw-bold">No Match Found</h5>
+                        <p class="text-muted col-md-8 mx-auto mb-0" style="font-size:0.875rem">No student found with that name or ID. Check spelling and try again.</p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

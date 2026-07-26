@@ -1,0 +1,179 @@
+{% extends 'records/index.html' %}
+
+{% block title %}Analytics & Results - SRMS{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-5 reveal">
+    <div>
+        <h1 class="fw-bold mb-1" style="letter-spacing:-0.03em">Class Analytics</h1>
+        <p class="text-muted mb-0" style="font-size:0.875rem">Performance metrics and statistical summary.</p>
+    </div>
+    {% if total_students > 0 %}
+        <a href="{% url 'records:export_results' %}" class="btn btn-primary-custom">
+            <i class="fa-solid fa-file-arrow-down me-1"></i> Export
+        </a>
+    {% endif %}
+</div>
+
+{% if total_students > 0 %}
+<!-- Stats Row -->
+<div class="row g-4 mb-5">
+    <div class="col-md-3 reveal reveal-delay-1">
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Class Average</div>
+                <div class="stat-val" style="font-size:1.5rem" data-counter="{{ avg_percentage }}" data-float="true">{{ avg_percentage }}%</div>
+            </div>
+            <div class="stat-icon"><i class="fa-solid fa-chart-simple"></i></div>
+        </div>
+    </div>
+    <div class="col-md-3 reveal reveal-delay-2">
+        <div class="stat-card success">
+            <div>
+                <div class="stat-label">Highest Score</div>
+                <div class="stat-val" style="font-size:1.5rem" data-counter="{{ highest_student.percentage }}" data-float="true">{{ highest_student.percentage }}%</div>
+                <small class="text-success fw-semibold">{{ highest_student.name }}</small>
+            </div>
+            <div class="stat-icon"><i class="fa-solid fa-circle-chevron-up"></i></div>
+        </div>
+    </div>
+    <div class="col-md-3 reveal reveal-delay-3">
+        <div class="stat-card warning">
+            <div>
+                <div class="stat-label">Lowest Score</div>
+                <div class="stat-val" style="font-size:1.5rem" data-counter="{{ lowest_student.percentage }}" data-float="true">{{ lowest_student.percentage }}%</div>
+                <small class="text-warning fw-semibold">{{ lowest_student.name }}</small>
+            </div>
+            <div class="stat-icon"><i class="fa-solid fa-circle-chevron-down"></i></div>
+        </div>
+    </div>
+    <div class="col-md-3 reveal">
+        <div class="stat-card secondary">
+            <div>
+                <div class="stat-label">Pass Rate</div>
+                <div class="stat-val" style="font-size:1.5rem" data-counter="{{ pass_percentage }}" data-float="true">{{ pass_percentage }}%</div>
+                <small class="text-muted">{{ total_students }} students</small>
+            </div>
+            <div class="stat-icon"><i class="fa-solid fa-square-check"></i></div>
+        </div>
+    </div>
+</div>
+
+<!-- Content Grid -->
+<div class="row g-4">
+    <div class="col-lg-6 reveal">
+        <div class="srms-card h-100">
+            <h5 class="srms-card-title">
+                <i class="fa-solid fa-percentage text-primary"></i>
+                Grade Distribution
+            </h5>
+            <div class="d-flex flex-column gap-3 mt-2">
+                {% for grade, pct in grade_percentages.items %}
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-semibold" style="font-size:0.8125rem;color:var(--text-secondary)">Grade {{ grade }}</span>
+                            <span class="text-muted" style="font-size:0.75rem;font-weight:600">{{ pct }}%</span>
+                        </div>
+                        <div class="summary-bar-container">
+                            <div class="summary-bar" data-percentage="{{ pct }}"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 reveal">
+        <div class="srms-card h-100">
+            <h5 class="srms-card-title">
+                <i class="fa-solid fa-heart-pulse text-primary"></i>
+                Class Health
+            </h5>
+
+            <div class="mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="fw-bold" style="font-size:0.875rem">Pass / Fail</span>
+                    <span class="fw-bold" style="font-size:0.875rem;color:var(--success)">{{ pass_percentage }}% Passed</span>
+                </div>
+                <div class="progress" style="height:10px;border-radius:var(--radius-full);overflow:hidden">
+                    <div class="progress-bar" role="progressbar" data-percentage="{{ pass_percentage }}" style="background:var(--success)" aria-valuenow="{{ pass_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar" role="progressbar" data-percentage="{{ fail_percentage }}" style="background:var(--danger)" aria-valuenow="{{ fail_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-2 text-muted" style="font-size:0.75rem">
+                    <span>{{ total_students }} student{{ total_students|pluralize }}</span>
+                    <span>{{ fail_percentage }}% failed</span>
+                </div>
+            </div>
+
+            <div style="border-top:1px solid var(--border-color);padding-top:1.25rem">
+                <h6 class="fw-bold mb-3" style="font-size:0.875rem">Insights</h6>
+                <ul class="list-unstyled d-flex flex-column gap-2" style="font-size:0.8125rem;color:var(--text-secondary)">
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="fa-solid fa-circle-info mt-1" style="color:var(--accent);font-size:0.75rem"></i>
+                        <span>Class average is <strong>{{ avg_percentage }}%</strong>, indicating general academic progress.</span>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="fa-solid fa-award mt-1" style="color:var(--success);font-size:0.75rem"></i>
+                        <span><strong>{{ highest_student.name }}</strong> leads with <strong>{{ highest_student.percentage }}%</strong>.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="srms-card text-center py-5 reveal">
+    <div class="mb-3"><i class="fa-solid fa-chart-line fs-1" style="color:var(--text-muted);opacity:0.4"></i></div>
+    <h4 class="fw-bold mb-2">No Analytics Data</h4>
+    <p class="text-muted col-md-6 mx-auto mb-4" style="font-size:0.875rem">Add student records to view grades, averages, and performance graphs.</p>
+    <a href="{% url 'records:add_student' %}" class="btn btn-primary-custom">
+        <i class="fa-solid fa-user-plus me-1"></i> Add Students
+    </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+
+    // Progress bars
+    document.querySelectorAll('[data-percentage]').forEach(function(bar) {
+        var pct = bar.getAttribute('data-percentage');
+        if (pct) {
+            setTimeout(function() { bar.style.width = pct + '%'; }, 200);
+        }
+    });
+
+    // Animated counters
+    document.querySelectorAll('[data-counter]').forEach(function(el) {
+        var target = parseFloat(el.getAttribute('data-counter'));
+        if (isNaN(target)) return;
+        var isFloat = el.getAttribute('data-float') === 'true';
+        var duration = 1200;
+        var start = performance.now();
+
+        function update(now) {
+            var elapsed = now - start;
+            var progress = Math.min(elapsed / duration, 1);
+            var ease = 1 - Math.pow(1 - progress, 3);
+            var current = ease * target;
+
+            if (isFloat) {
+                el.textContent = current.toFixed(2) + '%';
+            } else {
+                el.textContent = Math.round(current);
+            }
+
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                el.textContent = isFloat ? target.toFixed(2) + '%' : target;
+            }
+        }
+        requestAnimationFrame(update);
+    });
+})();
+</script>
+{% endblock %}

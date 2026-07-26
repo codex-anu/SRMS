@@ -1,0 +1,82 @@
+{% extends 'records/index.html' %}
+
+{% block title %}Update Student - {{ student.name }} - SRMS{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb" style="font-size:0.8125rem">
+                <li class="breadcrumb-item"><a href="{% url 'records:dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'records:list_students' %}">Records</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'records:student_details' student.id %}">{{ student.id }}</a></li>
+                <li class="breadcrumb-item active text-muted" aria-current="page">Edit</li>
+            </ol>
+        </nav>
+
+        <!-- Header -->
+        <div class="d-flex align-items-center gap-3 mb-4 reveal">
+            <a href="{% url 'records:student_details' student.id %}" class="btn btn-sm btn-secondary-custom" title="Back">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1 class="fw-bold mb-0" style="letter-spacing:-0.03em">Update Profile</h1>
+        </div>
+
+        <!-- Form Card -->
+        <div class="srms-card reveal">
+            <form method="POST" action="{% url 'records:update_student' student.id %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label class="form-label form-label-custom">Student ID</label>
+                    <input type="text" class="form-control form-control-custom" value="{{ student.id }}" readonly disabled style="opacity:0.6">
+                </div>
+
+                <div class="mb-4">
+                    <label for="name" class="form-label form-label-custom">Student Name</label>
+                    <input type="text" class="form-control form-control-custom" id="name" name="name" value="{{ student.name }}" required placeholder="Enter student name">
+                    <div class="invalid-feedback">Student name is required.</div>
+                </div>
+
+                <hr style="border-color:var(--border-color);margin:1.5rem 0">
+                <h6 class="fw-bold mb-3" style="color:var(--text-secondary);font-size:0.875rem"><i class="fa-solid fa-file-signature me-2"></i>Edit Subject Marks (0 – 100)</h6>
+
+                <div class="row g-3">
+                    {% for mark in student.marks %}
+                        <div class="col-md-4 col-sm-6">
+                            <label for="subject_{{ forloop.counter }}" class="form-label form-label-custom">Subject {{ forloop.counter }}</label>
+                            <input type="number" step="any" min="0" max="100" class="form-control form-control-custom" id="subject_{{ forloop.counter }}" name="subject_{{ forloop.counter }}" value="{{ mark }}" required placeholder="e.g. 85">
+                            <div class="invalid-feedback">Score must be 0–100.</div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3" style="border-top:1px solid var(--border-color)">
+                    <a href="{% url 'records:student_details' student.id %}" class="btn btn-secondary-custom">Cancel</a>
+                    <button type="submit" class="btn btn-primary-custom">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+    document.querySelectorAll('.needs-validation').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+    });
+})();
+</script>
+{% endblock %}

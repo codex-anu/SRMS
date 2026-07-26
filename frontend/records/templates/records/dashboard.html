@@ -1,0 +1,173 @@
+{% extends 'records/index.html' %}
+
+{% block title %}Dashboard - SRMS{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-gradient mb-5 text-white reveal">
+    <div class="position-relative" style="z-index:1">
+        <div class="d-flex align-items-center gap-2 mb-2" style="font-size:0.8125rem;opacity:0.7">
+            <i class="fa-solid fa-signal"></i> <span>Live Dashboard</span>
+        </div>
+        <h1 class="fw-bold mb-2" style="font-size:clamp(1.5rem,4vw,2.25rem);letter-spacing:-0.03em">Class Administration Portal</h1>
+        <p class="mb-0" style="color:rgba(255,255,255,0.6);max-width:520px;font-size:0.9375rem"><span id="hero-typing" data-text="Real-time analytics, grade tracking, and academic performance insights."></span><span class="typing-cursor">|</span></p>
+    </div>
+    <div class="position-absolute" style="top:-10px;right:20px;font-size:8rem;opacity:0.06;transform:rotate(12deg);pointer-events:none">
+        <i class="fa-solid fa-graduation-cap"></i>
+    </div>
+</div>
+
+<!-- Metrics Cards -->
+<div class="row g-4 mb-5">
+    <div class="col-md-4 reveal reveal-delay-1">
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Total Students</div>
+                <div class="stat-val" data-counter="{{ total_students }}">{{ total_students }}</div>
+            </div>
+            <div class="stat-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 reveal reveal-delay-2">
+        <div class="stat-card secondary">
+            <div>
+                <div class="stat-label">Class Average</div>
+                <div class="stat-val" data-counter="{{ avg_percentage }}" data-float="true">{{ avg_percentage|floatformat:2 }}%</div>
+            </div>
+            <div class="stat-icon">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 reveal reveal-delay-3">
+        <div class="stat-card success">
+            <div>
+                <div class="stat-label">Top Performer</div>
+                {% if top_student %}
+                    <div class="stat-val fs-4 mt-1" title="{{ top_student.name }}" style="font-size:1.25rem !important">{{ top_student.name|truncatechars:18 }}</div>
+                    <small class="text-success fw-bold">{{ top_student.percentage }}%</small>
+                    <small class="text-muted">&middot; Grade {{ top_student.grade }}</small>
+                {% else %}
+                    <div class="stat-val" style="font-size:1.25rem">N/A</div>
+                    <small class="text-muted">No records available</small>
+                {% endif %}
+            </div>
+            <div class="stat-icon">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content Grid -->
+<div class="row g-4">
+    <div class="col-lg-7 reveal">
+        <div class="srms-card h-100">
+            <h5 class="srms-card-title">
+                <i class="fa-solid fa-chart-bar text-primary"></i>
+                Grade Distribution
+            </h5>
+            <div class="d-flex flex-column gap-3">
+                {% for item in grade_data %}
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-semibold" style="font-size:0.8125rem;color:var(--text-secondary)">Grade {{ item.grade }}</span>
+                            <span class="text-muted" style="font-size:0.75rem">{{ item.count }} student{{ item.count|pluralize }}</span>
+                        </div>
+                        <div class="summary-bar-container">
+                            <div class="summary-bar" data-percentage="{{ item.percentage }}"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5 reveal">
+        <div class="srms-card h-100">
+            <h5 class="srms-card-title">
+                <i class="fa-solid fa-bolt text-primary"></i>
+                Quick Actions
+            </h5>
+            <div class="d-grid gap-2">
+                <a href="{% url 'records:add_student' %}" class="btn btn-primary-custom text-start py-2">
+                    <i class="fa-solid fa-plus me-2"></i> Add New Student
+                </a>
+                <a href="{% url 'records:list_students' %}" class="btn btn-secondary-custom text-start py-2">
+                    <i class="fa-solid fa-table-list me-2"></i> View All Records
+                </a>
+                <a href="{% url 'records:result_summary' %}" class="btn btn-secondary-custom text-start py-2">
+                    <i class="fa-solid fa-chart-pie me-2"></i> Detailed Analytics
+                </a>
+                {% if total_students > 0 %}
+                    <a href="{% url 'records:export_results' %}" class="btn btn-secondary-custom text-start py-2">
+                        <i class="fa-solid fa-file-arrow-down me-2"></i> Export Report
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    'use strict';
+
+    // Progress bars
+    document.querySelectorAll('[data-percentage]').forEach(function(bar) {
+        var pct = bar.getAttribute('data-percentage');
+        if (pct) {
+            setTimeout(function() { bar.style.width = pct + '%'; }, 200);
+        }
+    });
+
+    // Typing effect
+    var typingEl = document.getElementById('hero-typing');
+    if (typingEl) {
+        var text = typingEl.getAttribute('data-text');
+        var index = 0;
+        function typeChar() {
+            if (index < text.length) {
+                typingEl.textContent += text.charAt(index);
+                index++;
+                setTimeout(typeChar, 25);
+            }
+        }
+        setTimeout(typeChar, 500);
+    }
+
+    // Animated counters
+    document.querySelectorAll('[data-counter]').forEach(function(el) {
+        var target = parseFloat(el.getAttribute('data-counter'));
+        if (isNaN(target)) return;
+        var isFloat = el.getAttribute('data-float') === 'true';
+        var duration = 1200;
+        var start = performance.now();
+
+        function update(now) {
+            var elapsed = now - start;
+            var progress = Math.min(elapsed / duration, 1);
+            var ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+            var current = ease * target;
+
+            if (isFloat) {
+                el.textContent = current.toFixed(2) + '%';
+            } else {
+                el.textContent = Math.round(current);
+            }
+
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                el.textContent = isFloat ? target.toFixed(2) + '%' : target;
+            }
+        }
+        requestAnimationFrame(update);
+    });
+})();
+</script>
+{% endblock %}
